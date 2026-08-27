@@ -1,6 +1,7 @@
 import { PRIORITY_LABEL, DEFAULT_FREQUENCY_DAYS } from "@/lib/contact-frequency";
 import type { Priority } from "@prisma/client";
 import { ChangePasswordForm } from "@/components/change-password-form";
+import { NotificationToggle } from "@/components/notification-toggle";
 
 export default function SettingsPage() {
   return (
@@ -26,6 +27,13 @@ export default function SettingsPage() {
         <p className="mt-3 text-xs text-neutral-400">
           Có thể ghi đè tần suất riêng cho từng contact khi tạo/sửa contact.
         </p>
+      </div>
+
+      <div className="rounded-lg border border-neutral-200 bg-white p-4">
+        <h2 className="mb-3 text-sm font-semibold text-neutral-700">
+          Thông báo nhắc lịch liên hệ
+        </h2>
+        <NotificationToggle />
       </div>
 
       <div className="rounded-lg border border-neutral-200 bg-white p-4">
