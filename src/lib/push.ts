@@ -1,21 +1,28 @@
 import webpush from "web-push";
 
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT!,
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!,
-);
-
 export type PushPayload = {
   title: string;
   body: string;
   url?: string;
 };
 
+let configured = false;
+
+function ensureConfigured() {
+  if (configured) return;
+  webpush.setVapidDetails(
+    process.env.VAPID_SUBJECT!,
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!,
+  );
+  configured = true;
+}
+
 export async function sendPushToSubscription(
   subscription: { endpoint: string; p256dh: string; auth: string },
   payload: PushPayload,
 ) {
+  ensureConfigured();
   try {
     await webpush.sendNotification(
       {

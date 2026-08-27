@@ -3,6 +3,8 @@ import { getDashboardData } from "@/lib/actions/dashboard";
 import { ContactRow } from "@/components/contact-row";
 import { formatDate } from "@/lib/format";
 
+export const dynamic = "force-dynamic";
+
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-lg border border-neutral-200 bg-white px-4 py-3">
