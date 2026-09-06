@@ -110,11 +110,20 @@ export async function getDashboardData() {
   };
 }
 
+export type CalendarEntry = {
+  id: string;
+  contactId: string;
+  fullName: string;
+  priority: string;
+  kind: "next-contact" | "follow-up";
+  note?: string | null;
+};
+
 export type CalendarDay = {
   date: Date;
   inCurrentMonth: boolean;
   isToday: boolean;
-  contacts: { id: string; fullName: string; priority: string }[];
+  entries: CalendarEntry[];
 };
 
 export async function getMonthCalendarData(monthParam?: string) {
@@ -124,18 +133,52 @@ export async function getMonthCalendarData(monthParam?: string) {
   const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 });
   const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
 
-  const contacts = await db.contact.findMany({
-    where: { nextContactDate: { gte: gridStart, lte: gridEnd } },
-    select: { id: true, fullName: true, priority: true, nextContactDate: true },
-    orderBy: { priority: "asc" },
-  });
+  const [contacts, followUps] = await Promise.all([
+    db.contact.findMany({
+      where: { nextContactDate: { gte: gridStart, lte: gridEnd } },
+      select: { id: true, fullName: true, priority: true, nextContactDate: true },
+      orderBy: { priority: "asc" },
+    }),
+    db.interaction.findMany({
+      where: {
+        followUpDone: false,
+        followUpDate: { gte: gridStart, lte: gridEnd },
+      },
+      select: {
+        id: true,
+        followUpDate: true,
+        nextAction: true,
+        contact: { select: { id: true, fullName: true, priority: true } },
+      },
+    }),
+  ]);
 
-  const byDay = new Map<string, { id: string; fullName: string; priority: string }[]>();
+  const byDay = new Map<string, CalendarEntry[]>();
   for (const c of contacts) {
     if (!c.nextContactDate) continue;
     const key = format(c.nextContactDate, "yyyy-MM-dd");
     const list = byDay.get(key) ?? [];
-    list.push({ id: c.id, fullName: c.fullName, priority: c.priority });
+    list.push({
+      id: `nc-${c.id}`,
+      contactId: c.id,
+      fullName: c.fullName,
+      priority: c.priority,
+      kind: "next-contact",
+    });
+    byDay.set(key, list);
+  }
+  for (const f of followUps) {
+    if (!f.followUpDate) continue;
+    const key = format(f.followUpDate, "yyyy-MM-dd");
+    const list = byDay.get(key) ?? [];
+    list.push({
+      id: `fu-${f.id}`,
+      contactId: f.contact.id,
+      fullName: f.contact.fullName,
+      priority: f.contact.priority,
+      kind: "follow-up",
+      note: f.nextAction,
+    });
     byDay.set(key, list);
   }
 
@@ -144,7 +187,7 @@ export async function getMonthCalendarData(monthParam?: string) {
     date,
     inCurrentMonth: isSameMonth(date, monthStart),
     isToday: isToday(date),
-    contacts: byDay.get(format(date, "yyyy-MM-dd")) ?? [],
+    entries: byDay.get(format(date, "yyyy-MM-dd")) ?? [],
   }));
 
   const weeks: CalendarDay[][] = [];
