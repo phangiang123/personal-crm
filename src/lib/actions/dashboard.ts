@@ -2,7 +2,21 @@
 
 import { db } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
-import { addDays, endOfDay, startOfDay, subMonths } from "date-fns";
+import {
+  addDays,
+  addMonths,
+  eachDayOfInterval,
+  endOfDay,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isSameMonth,
+  isToday,
+  startOfDay,
+  startOfMonth,
+  startOfWeek,
+  subMonths,
+} from "date-fns";
 
 export async function getDashboardData() {
   const now = new Date();
@@ -93,5 +107,54 @@ export async function getDashboardData() {
       priorityBOverdue,
       pendingFollowUps,
     },
+  };
+}
+
+export type CalendarDay = {
+  date: Date;
+  inCurrentMonth: boolean;
+  isToday: boolean;
+  contacts: { id: string; fullName: string; priority: string }[];
+};
+
+export async function getMonthCalendarData(monthParam?: string) {
+  const base = monthParam ? new Date(`${monthParam}-01T00:00:00`) : new Date();
+  const monthStart = startOfMonth(base);
+  const monthEnd = endOfMonth(base);
+  const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+  const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
+
+  const contacts = await db.contact.findMany({
+    where: { nextContactDate: { gte: gridStart, lte: gridEnd } },
+    select: { id: true, fullName: true, priority: true, nextContactDate: true },
+    orderBy: { priority: "asc" },
+  });
+
+  const byDay = new Map<string, { id: string; fullName: string; priority: string }[]>();
+  for (const c of contacts) {
+    if (!c.nextContactDate) continue;
+    const key = format(c.nextContactDate, "yyyy-MM-dd");
+    const list = byDay.get(key) ?? [];
+    list.push({ id: c.id, fullName: c.fullName, priority: c.priority });
+    byDay.set(key, list);
+  }
+
+  const allDays = eachDayOfInterval({ start: gridStart, end: gridEnd });
+  const days: CalendarDay[] = allDays.map((date) => ({
+    date,
+    inCurrentMonth: isSameMonth(date, monthStart),
+    isToday: isToday(date),
+    contacts: byDay.get(format(date, "yyyy-MM-dd")) ?? [],
+  }));
+
+  const weeks: CalendarDay[][] = [];
+  for (let i = 0; i < days.length; i += 7) weeks.push(days.slice(i, i + 7));
+
+  return {
+    monthLabel: format(monthStart, "MM/yyyy"),
+    monthKey: format(monthStart, "yyyy-MM"),
+    prevMonthKey: format(subMonths(monthStart, 1), "yyyy-MM"),
+    nextMonthKey: format(addMonths(monthStart, 1), "yyyy-MM"),
+    weeks,
   };
 }

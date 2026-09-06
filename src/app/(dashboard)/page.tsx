@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { getDashboardData } from "@/lib/actions/dashboard";
+import { getDashboardData, getMonthCalendarData } from "@/lib/actions/dashboard";
 import { ContactRow } from "@/components/contact-row";
+import { MonthCalendar } from "@/components/month-calendar";
 import { formatDate } from "@/lib/format";
 
 export const dynamic = "force-dynamic";
@@ -43,8 +44,16 @@ function Section({
   );
 }
 
-export default async function DashboardPage() {
-  const data = await getDashboardData();
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
+  const { month } = await searchParams;
+  const [data, calendar] = await Promise.all([
+    getDashboardData(),
+    getMonthCalendarData(month),
+  ]);
   const { stats, priorityList } = data;
 
   return (
@@ -55,6 +64,14 @@ export default async function DashboardPage() {
           Tổng quan các mối quan hệ cần chăm sóc
         </p>
       </div>
+
+      <MonthCalendar
+        monthLabel={calendar.monthLabel}
+        monthKey={calendar.monthKey}
+        prevMonthKey={calendar.prevMonthKey}
+        nextMonthKey={calendar.nextMonthKey}
+        weeks={calendar.weeks}
+      />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <StatCard label="Tổng Contacts" value={stats.totalContacts} />
