@@ -235,22 +235,48 @@ export function ContactForm({
           </Field>
         </div>
         <Field label="Tần suất liên hệ (để trống = dùng mặc định theo priority)">
-          <select
-            className={inputClass}
-            value={contactFrequencyDays ?? ""}
-            onChange={(e) =>
-              setContactFrequencyDays(
-                e.target.value ? Number(e.target.value) : null,
-              )
-            }
-          >
-            <option value="">Mặc định theo priority</option>
-            {FREQUENCY_PRESETS.map((f) => (
-              <option key={f.days} value={f.days}>
-                {f.label}
-              </option>
-            ))}
-          </select>
+          <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
+              {FREQUENCY_PRESETS.map((f) => (
+                <button
+                  key={f.days}
+                  type="button"
+                  onClick={() => setContactFrequencyDays(f.days)}
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    contactFrequencyDays === f.days
+                      ? "border-neutral-900 bg-neutral-900 text-white"
+                      : "border-neutral-300 bg-white text-neutral-600 hover:border-neutral-400"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              ))}
+              {contactFrequencyDays !== null && (
+                <button
+                  type="button"
+                  onClick={() => setContactFrequencyDays(null)}
+                  className="rounded-full border border-neutral-300 bg-white px-3 py-1 text-xs font-medium text-neutral-500 hover:border-neutral-400"
+                >
+                  Dùng mặc định
+                </button>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min={1}
+                value={contactFrequencyDays ?? ""}
+                onChange={(e) =>
+                  setContactFrequencyDays(
+                    e.target.value ? Number(e.target.value) : null,
+                  )
+                }
+                placeholder="Tùy chỉnh số ngày, vd: 3"
+                className={`${inputClass} max-w-[220px]`}
+              />
+              <span className="text-sm text-neutral-500">ngày</span>
+            </div>
+          </div>
         </Field>
       </section>
 
