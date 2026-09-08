@@ -210,6 +210,7 @@ export default async function ContactDetailPage({
       </div>
 
       <UpcomingSchedule
+        contactId={contact.id}
         nextContactDate={contact.nextContactDate}
         priority={contact.priority}
         interactions={contact.interactions}
