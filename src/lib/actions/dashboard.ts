@@ -117,6 +117,7 @@ export type CalendarEntry = {
   priority: string;
   kind: "next-contact" | "follow-up";
   note?: string | null;
+  done?: boolean;
 };
 
 export type CalendarDay = {
@@ -141,13 +142,13 @@ export async function getMonthCalendarData(monthParam?: string) {
     }),
     db.interaction.findMany({
       where: {
-        followUpDone: false,
         followUpDate: { gte: gridStart, lte: gridEnd },
       },
       select: {
         id: true,
         followUpDate: true,
         nextAction: true,
+        followUpDone: true,
         contact: { select: { id: true, fullName: true, priority: true } },
       },
     }),
@@ -178,8 +179,13 @@ export async function getMonthCalendarData(monthParam?: string) {
       priority: f.contact.priority,
       kind: "follow-up",
       note: f.nextAction,
+      done: f.followUpDone,
     });
     byDay.set(key, list);
+  }
+
+  for (const list of byDay.values()) {
+    list.sort((a, b) => Number(!!a.done) - Number(!!b.done));
   }
 
   const allDays = eachDayOfInterval({ start: gridStart, end: gridEnd });

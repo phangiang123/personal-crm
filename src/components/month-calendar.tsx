@@ -105,24 +105,32 @@ export function MonthCalendar({
                             key={entry.id}
                             href={`/contacts/${entry.contactId}`}
                             className={`flex items-center gap-1 truncate rounded px-1 py-0.5 text-[11px] hover:bg-neutral-100 ${
-                              entry.kind === "follow-up"
-                                ? "text-amber-700"
-                                : "text-neutral-700"
+                              entry.done
+                                ? "text-neutral-400"
+                                : entry.kind === "follow-up"
+                                  ? "text-amber-700"
+                                  : "text-neutral-700"
                             }`}
                             title={
                               entry.kind === "follow-up"
-                                ? `Follow-up: ${entry.fullName}${entry.note ? " — " + entry.note : ""}`
+                                ? `Follow-up${entry.done ? " (đã xong)" : ""}: ${entry.fullName}${entry.note ? " — " + entry.note : ""}`
                                 : entry.fullName
                             }
                           >
                             {entry.kind === "follow-up" ? (
-                              <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+                              <span
+                                className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${
+                                  entry.done ? "bg-neutral-300" : "bg-amber-500"
+                                }`}
+                              />
                             ) : (
                               <PriorityBadge
                                 priority={entry.priority as "A" | "B" | "C" | "D" | "E"}
                               />
                             )}
-                            <span className="truncate">{entry.fullName}</span>
+                            <span className={`truncate ${entry.done ? "line-through" : ""}`}>
+                              {entry.fullName}
+                            </span>
                           </Link>
                         ))}
                         {extra > 0 && (
