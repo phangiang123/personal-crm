@@ -10,6 +10,7 @@ import { formatDate, INTERACTION_TYPE_LABEL } from "@/lib/format";
 import { InteractionForm } from "@/components/interaction-form";
 import { InteractionTimeline } from "@/components/interaction-timeline";
 import { DeleteContactButton } from "@/components/delete-contact-button";
+import { UpcomingSchedule } from "@/components/upcoming-schedule";
 
 function InfoRow({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
@@ -207,6 +208,12 @@ export default async function ContactDetailPage({
         </div>
         <InteractionTimeline interactions={contact.interactions} />
       </div>
+
+      <UpcomingSchedule
+        nextContactDate={contact.nextContactDate}
+        priority={contact.priority}
+        interactions={contact.interactions}
+      />
     </div>
   );
 }
