@@ -134,7 +134,7 @@ export async function getMonthCalendarData(monthParam?: string) {
   const gridStart = startOfWeek(monthStart, { weekStartsOn: 1 });
   const gridEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
 
-  const [contacts, followUps] = await Promise.all([
+  const [contacts, followUps, resolvedDates] = await Promise.all([
     db.contact.findMany({
       where: { nextContactDate: { gte: gridStart, lte: gridEnd } },
       select: { id: true, fullName: true, priority: true, nextContactDate: true },
@@ -149,6 +149,14 @@ export async function getMonthCalendarData(monthParam?: string) {
         followUpDate: true,
         nextAction: true,
         followUpDone: true,
+        contact: { select: { id: true, fullName: true, priority: true } },
+      },
+    }),
+    db.resolvedContactDate.findMany({
+      where: { date: { gte: gridStart, lte: gridEnd } },
+      select: {
+        id: true,
+        date: true,
         contact: { select: { id: true, fullName: true, priority: true } },
       },
     }),
@@ -180,6 +188,19 @@ export async function getMonthCalendarData(monthParam?: string) {
       kind: "follow-up",
       note: f.nextAction,
       done: f.followUpDone,
+    });
+    byDay.set(key, list);
+  }
+  for (const r of resolvedDates) {
+    const key = format(r.date, "yyyy-MM-dd");
+    const list = byDay.get(key) ?? [];
+    list.push({
+      id: `rc-${r.id}`,
+      contactId: r.contact.id,
+      fullName: r.contact.fullName,
+      priority: r.contact.priority,
+      kind: "next-contact",
+      done: true,
     });
     byDay.set(key, list);
   }

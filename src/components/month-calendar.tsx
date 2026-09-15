@@ -112,17 +112,17 @@ export function MonthCalendar({
                                   : "text-neutral-700"
                             }`}
                             title={
-                              entry.kind === "follow-up"
-                                ? `Follow-up${entry.done ? " (đã xong)" : ""}: ${entry.fullName}${entry.note ? " — " + entry.note : ""}`
-                                : entry.fullName
+                              entry.done
+                                ? `Đã liên hệ xong: ${entry.fullName}`
+                                : entry.kind === "follow-up"
+                                  ? `Follow-up: ${entry.fullName}${entry.note ? " — " + entry.note : ""}`
+                                  : entry.fullName
                             }
                           >
-                            {entry.kind === "follow-up" ? (
-                              <span
-                                className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${
-                                  entry.done ? "bg-neutral-300" : "bg-amber-500"
-                                }`}
-                              />
+                            {entry.done ? (
+                              <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-neutral-300" />
+                            ) : entry.kind === "follow-up" ? (
+                              <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
                             ) : (
                               <PriorityBadge
                                 priority={entry.priority as "A" | "B" | "C" | "D" | "E"}

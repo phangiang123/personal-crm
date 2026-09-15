@@ -77,14 +77,25 @@ model Contact {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  groups       ContactGroup[]
-  tags         ContactTag[]
-  interactions Interaction[]
-  theyCanHelp  HelpTopic[]    @relation("TheyHelp")
-  iCanHelp     HelpTopic[]    @relation("IHelp")
+  groups         ContactGroup[]
+  tags           ContactTag[]
+  interactions   Interaction[]
+  theyCanHelp    HelpTopic[]           @relation("TheyHelp")
+  iCanHelp       HelpTopic[]           @relation("IHelp")
+  resolvedDates  ResolvedContactDate[]
 
   @@index([priority, nextContactDate])
   @@index([nextContactDate])
+}
+
+model ResolvedContactDate {
+  id         String   @id @default(cuid())
+  contactId  String
+  contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  date       DateTime
+  resolvedAt DateTime @default(now())
+
+  @@index([date])
 }
 
 model Group {

@@ -44,6 +44,16 @@ export async function addInteraction(input: InteractionInput) {
       contact.priority,
       contact.contactFrequencyDays,
     );
+
+    if (
+      contact.nextContactDate &&
+      contact.nextContactDate.getTime() !== nextContactDate?.getTime()
+    ) {
+      await db.resolvedContactDate.create({
+        data: { contactId: input.contactId, date: contact.nextContactDate },
+      });
+    }
+
     await db.contact.update({
       where: { id: input.contactId },
       data: {
