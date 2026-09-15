@@ -40,6 +40,7 @@ export async function getDashboardData() {
     dueToday,
     due7,
     due30,
+    noSchedule,
     totalContacts,
     groups,
     notContacted3Months,
@@ -59,6 +60,7 @@ export async function getDashboardData() {
       where: { nextContactDate: { gt: in7, lte: in30 } },
       ...contactCard,
     }),
+    db.contact.findMany({ where: { nextContactDate: null }, ...contactCard }),
     db.contact.count(),
     db.group.findMany({
       include: { _count: { select: { contacts: true } } },
@@ -95,6 +97,7 @@ export async function getDashboardData() {
     dueToday,
     due7,
     due30,
+    noSchedule,
     stats: {
       totalContacts,
       byGroup: groups.map((g) => ({ name: g.name, count: g._count.contacts })),

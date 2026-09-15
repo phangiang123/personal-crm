@@ -187,6 +187,11 @@ export default async function DashboardPage({
           contacts={data.due30}
           emptyText="Không có ai cần liên hệ trong 30 ngày tới."
         />
+        <Section
+          title="Chưa có lịch liên hệ"
+          contacts={data.noSchedule}
+          emptyText="Tất cả contact đều đã có lịch liên hệ."
+        />
       </div>
     </div>
   );
