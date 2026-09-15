@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { computeNextContactDate } from "@/lib/contact-frequency";
-import type { Closeness, Priority, InteractionType, Prisma } from "@prisma/client";
+import type { Closeness, Priority, Prisma } from "@prisma/client";
 import { addDays, endOfDay, startOfDay } from "date-fns";
 
 export type ContactInput = {
@@ -199,20 +199,13 @@ export async function listContacts(filter: ContactFilter = {}) {
   });
 }
 
-export async function recordInteractionAndSync(contactId: string, date: Date, type: InteractionType, note: string | null) {
-  const contact = await db.contact.findUniqueOrThrow({ where: { id: contactId } });
-  const nextContactDate = computeNextContactDate(
-    date,
-    contact.priority,
-    contact.contactFrequencyDays,
-  );
+export async function setNextContactDate(contactId: string, date: string | null) {
   await db.contact.update({
     where: { id: contactId },
-    data: {
-      lastContactDate: date,
-      lastContactType: type,
-      lastContactNote: note,
-      nextContactDate,
-    },
+    data: { nextContactDate: date ? new Date(date) : null },
   });
+
+  revalidatePath(`/contacts/${contactId}`);
+  revalidatePath("/follow-ups");
+  revalidatePath("/");
 }

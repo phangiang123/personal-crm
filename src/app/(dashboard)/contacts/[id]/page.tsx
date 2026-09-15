@@ -11,6 +11,7 @@ import { InteractionForm } from "@/components/interaction-form";
 import { InteractionTimeline } from "@/components/interaction-timeline";
 import { DeleteContactButton } from "@/components/delete-contact-button";
 import { UpcomingSchedule } from "@/components/upcoming-schedule";
+import { EditNextContactDate } from "@/components/edit-next-contact-date";
 
 function InfoRow({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
@@ -194,6 +195,12 @@ export default async function ContactDetailPage({
               <span className="text-sm text-neutral-800">
                 {formatDate(contact.nextContactDate)}
               </span>
+            </div>
+            <div className="mt-1.5">
+              <EditNextContactDate
+                contactId={contact.id}
+                nextContactDate={contact.nextContactDate}
+              />
             </div>
           </div>
         </div>
