@@ -22,7 +22,7 @@ function toOptional(value: string | undefined) {
 export async function addInteraction(input: InteractionInput) {
   const date = new Date(input.date);
 
-  await db.interaction.create({
+  const interaction = await db.interaction.create({
     data: {
       contactId: input.contactId,
       date,
@@ -50,7 +50,11 @@ export async function addInteraction(input: InteractionInput) {
       contact.nextContactDate.getTime() !== nextContactDate?.getTime()
     ) {
       await db.resolvedContactDate.create({
-        data: { contactId: input.contactId, date: contact.nextContactDate },
+        data: {
+          contactId: input.contactId,
+          date: contact.nextContactDate,
+          interactionId: interaction.id,
+        },
       });
     }
 
@@ -66,6 +70,53 @@ export async function addInteraction(input: InteractionInput) {
   }
 
   revalidatePath(`/contacts/${input.contactId}`);
+  revalidatePath("/follow-ups");
+  revalidatePath("/");
+}
+
+export async function deleteInteraction(interactionId: string) {
+  const interaction = await db.interaction.findUniqueOrThrow({
+    where: { id: interactionId },
+  });
+
+  await db.interaction.delete({ where: { id: interactionId } });
+
+  const latest = await db.interaction.findFirst({
+    where: { contactId: interaction.contactId },
+    orderBy: { date: "desc" },
+  });
+
+  const contact = await db.contact.findUniqueOrThrow({
+    where: { id: interaction.contactId },
+  });
+
+  if (latest) {
+    await db.contact.update({
+      where: { id: interaction.contactId },
+      data: {
+        lastContactDate: latest.date,
+        lastContactType: latest.type,
+        lastContactNote: latest.content,
+        nextContactDate: computeNextContactDate(
+          latest.date,
+          contact.priority,
+          contact.contactFrequencyDays,
+        ),
+      },
+    });
+  } else {
+    await db.contact.update({
+      where: { id: interaction.contactId },
+      data: {
+        lastContactDate: null,
+        lastContactType: null,
+        lastContactNote: null,
+        nextContactDate: null,
+      },
+    });
+  }
+
+  revalidatePath(`/contacts/${interaction.contactId}`);
   revalidatePath("/follow-ups");
   revalidatePath("/");
 }

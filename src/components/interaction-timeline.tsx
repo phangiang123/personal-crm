@@ -1,6 +1,7 @@
 import type { Interaction } from "@prisma/client";
 import { INTERACTION_TYPE_LABEL, formatDate } from "@/lib/format";
 import { FollowUpToggle } from "@/components/follow-up-toggle";
+import { DeleteInteractionButton } from "@/components/delete-interaction-button";
 
 function sortForDisplay(interactions: Interaction[]) {
   const pending = interactions
@@ -51,9 +52,12 @@ export function InteractionTimeline({
                   {INTERACTION_TYPE_LABEL[it.type]}
                 </span>
               </div>
-              <span className="text-xs text-neutral-400">
-                {formatDate(it.date)}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-neutral-400">
+                  {formatDate(it.date)}
+                </span>
+                <DeleteInteractionButton interactionId={it.id} />
+              </div>
             </div>
             {it.content && (
               <p className="mt-1 text-sm text-neutral-600">{it.content}</p>

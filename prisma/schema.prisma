@@ -89,11 +89,13 @@ model Contact {
 }
 
 model ResolvedContactDate {
-  id         String   @id @default(cuid())
-  contactId  String
-  contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  date       DateTime
-  resolvedAt DateTime @default(now())
+  id            String      @id @default(cuid())
+  contactId     String
+  contact       Contact     @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  interactionId String?     @unique
+  interaction   Interaction? @relation(fields: [interactionId], references: [id], onDelete: Cascade)
+  date          DateTime
+  resolvedAt    DateTime    @default(now())
 
   @@index([date])
 }
@@ -147,6 +149,7 @@ model Interaction {
   followUpDate DateTime?
   followUpDone Boolean          @default(false)
   createdAt    DateTime         @default(now())
+  resolvedContactDate ResolvedContactDate?
 
   @@index([contactId, date])
   @@index([followUpDate, followUpDone])
