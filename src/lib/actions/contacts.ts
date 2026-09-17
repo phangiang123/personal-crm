@@ -119,6 +119,13 @@ export async function deleteContact(id: string) {
   redirect("/contacts");
 }
 
+export async function listContactOptions() {
+  return db.contact.findMany({
+    select: { id: true, fullName: true },
+    orderBy: { fullName: "asc" },
+  });
+}
+
 export async function getContact(id: string) {
   return db.contact.findUnique({
     where: { id },

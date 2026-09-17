@@ -83,9 +83,25 @@ model Contact {
   theyCanHelp    HelpTopic[]           @relation("TheyHelp")
   iCanHelp       HelpTopic[]           @relation("IHelp")
   resolvedDates  ResolvedContactDate[]
+  tasks          Task[]
 
   @@index([priority, nextContactDate])
   @@index([nextContactDate])
+}
+
+model Task {
+  id        String    @id @default(cuid())
+  title     String
+  notes     String?
+  dueDate   DateTime?
+  priority  Priority  @default(E)
+  done      Boolean   @default(false)
+  contactId String?
+  contact   Contact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([dueDate, done])
 }
 
 model ResolvedContactDate {

@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { href: "/", label: "Dashboard" },
   { href: "/contacts", label: "Contacts" },
   { href: "/follow-ups", label: "Follow-ups" },
+  { href: "/tasks", label: "Công việc" },
   { href: "/tags", label: "Tags" },
   { href: "/settings", label: "Settings" },
 ];
