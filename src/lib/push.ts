@@ -1,4 +1,5 @@
 import webpush from "web-push";
+import { db } from "@/lib/db";
 
 export type PushPayload = {
   title: string;
@@ -39,4 +40,18 @@ export async function sendPushToSubscription(
         : undefined;
     return { ok: false as const, expired: statusCode === 404 || statusCode === 410 };
   }
+}
+
+export async function broadcastPush(payload: PushPayload) {
+  const subscriptions = await db.pushSubscription.findMany();
+  let sent = 0;
+  for (const sub of subscriptions) {
+    const result = await sendPushToSubscription(sub, payload);
+    if (result.ok) {
+      sent++;
+    } else if (result.expired) {
+      await db.pushSubscription.delete({ where: { id: sub.id } }).catch(() => {});
+    }
+  }
+  return { sent, total: subscriptions.length };
 }
