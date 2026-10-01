@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/follow-ups", label: "Follow-ups" },
   { href: "/tasks", label: "Công việc" },
   { href: "/calendar", label: "Lịch" },
+  { href: "/journal", label: "Tổng kết ngày" },
   { href: "/tags", label: "Tags" },
   { href: "/settings", label: "Settings" },
 ];
