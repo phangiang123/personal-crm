@@ -48,6 +48,34 @@ enum InteractionType {
   OTHER
 }
 
+enum ChoreFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+}
+
+model Chore {
+  id         String          @id @default(cuid())
+  title      String
+  frequency  ChoreFrequency
+  weeklyDay  Int?
+  monthlyDay Int?
+  active     Boolean         @default(true)
+  createdAt  DateTime        @default(now())
+
+  completions ChoreCompletion[]
+}
+
+model ChoreCompletion {
+  id      String   @id @default(cuid())
+  choreId String
+  chore   Chore    @relation(fields: [choreId], references: [id], onDelete: Cascade)
+  date    DateTime @db.Date
+  doneAt  DateTime @default(now())
+
+  @@unique([choreId, date])
+}
+
 model Contact {
   id        String  @id @default(cuid())
   fullName  String

@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { href: "/contacts", label: "Contacts" },
   { href: "/follow-ups", label: "Follow-ups" },
   { href: "/tasks", label: "Công việc" },
+  { href: "/chores", label: "Việc nhà" },
   { href: "/calendar", label: "Lịch" },
   { href: "/journal", label: "Tổng kết ngày" },
   { href: "/tags", label: "Tags" },
