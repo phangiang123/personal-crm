@@ -18,6 +18,7 @@ type ChoreData = {
   frequency: ChoreFrequency;
   weeklyDay: number | null;
   monthlyDay: number | null;
+  reminderHour: number | null;
   active: boolean;
 };
 
@@ -34,9 +35,14 @@ const WEEKDAY_LABEL: Record<number, string> = {
 };
 
 function frequencyLabel(c: ChoreData) {
-  if (c.frequency === "DAILY") return "Hàng ngày";
-  if (c.frequency === "WEEKLY") return `Hàng tuần · ${WEEKDAY_LABEL[c.weeklyDay ?? 1]}`;
-  return `Hàng tháng · ngày ${c.monthlyDay}`;
+  const base =
+    c.frequency === "DAILY"
+      ? "Hàng ngày"
+      : c.frequency === "WEEKLY"
+        ? `Hàng tuần · ${WEEKDAY_LABEL[c.weeklyDay ?? 1]}`
+        : `Hàng tháng · ngày ${c.monthlyDay}`;
+  if (c.reminderHour == null) return base;
+  return `${base} · nhắc ${String(c.reminderHour).padStart(2, "0")}:00`;
 }
 
 function TodayItem({ chore, todayKey }: { chore: TodayChore; todayKey: string }) {
@@ -139,11 +145,6 @@ export function ChoresClient({
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-xl font-semibold text-neutral-900">Việc nhà</h1>
-        <p className="text-sm text-neutral-500">Danh sách việc nhà lặp lại định kỳ</p>
-      </div>
-
       <div className="space-y-3">
         <h2 className="text-sm font-semibold text-neutral-700">
           Hôm nay ({todayChores.length})

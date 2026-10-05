@@ -55,13 +55,14 @@ enum ChoreFrequency {
 }
 
 model Chore {
-  id         String          @id @default(cuid())
-  title      String
-  frequency  ChoreFrequency
-  weeklyDay  Int?
-  monthlyDay Int?
-  active     Boolean         @default(true)
-  createdAt  DateTime        @default(now())
+  id           String          @id @default(cuid())
+  title        String
+  frequency    ChoreFrequency
+  weeklyDay    Int?
+  monthlyDay   Int?
+  reminderHour Int?
+  active       Boolean         @default(true)
+  createdAt    DateTime        @default(now())
 
   completions ChoreCompletion[]
 }

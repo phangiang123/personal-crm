@@ -32,6 +32,10 @@ export function ChoreForm({
   );
   const [weeklyDay, setWeeklyDay] = useState<number>(initial?.weeklyDay ?? 1);
   const [monthlyDay, setMonthlyDay] = useState<number>(initial?.monthlyDay ?? 1);
+  const [reminderOn, setReminderOn] = useState(initial?.reminderHour != null);
+  const [reminderHour, setReminderHour] = useState<number>(
+    initial?.reminderHour ?? 7,
+  );
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -49,6 +53,7 @@ export function ChoreForm({
           frequency,
           weeklyDay: frequency === "WEEKLY" ? weeklyDay : null,
           monthlyDay: frequency === "MONTHLY" ? monthlyDay : null,
+          reminderHour: reminderOn ? reminderHour : null,
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Có lỗi xảy ra.");
@@ -110,6 +115,36 @@ export function ChoreForm({
           />
         </Field>
       )}
+
+      <Field label="Nhắc giờ">
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-1.5 text-sm text-neutral-600">
+            <input
+              type="checkbox"
+              checked={reminderOn}
+              onChange={(e) => setReminderOn(e.target.checked)}
+              className="h-4 w-4 rounded border-neutral-300"
+            />
+            Bật nhắc
+          </label>
+          {reminderOn && (
+            <select
+              className={`${inputClass} max-w-[140px]`}
+              value={reminderHour}
+              onChange={(e) => setReminderHour(Number(e.target.value))}
+            >
+              {Array.from({ length: 24 }, (_, h) => (
+                <option key={h} value={h}>
+                  {String(h).padStart(2, "0")}:00
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+        <p className="mt-1 text-xs text-neutral-400">
+          Thông báo có thể trễ tới gần 1 tiếng do giới hạn của hệ thống.
+        </p>
+      </Field>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
