@@ -101,11 +101,18 @@ export async function getTodayChores() {
   return getChoresForDate(todayInVietnam());
 }
 
+export type MonthChoreItem = {
+  id: string;
+  title: string;
+  done: boolean;
+};
+
 export type MonthChoreDay = {
   dateKey: string;
   dayOfMonth: number;
   dueCount: number;
   doneCount: number;
+  items: MonthChoreItem[];
 };
 
 export async function getChoresForMonth(monthKey: string) {
@@ -136,8 +143,11 @@ export async function getChoresForMonth(monthKey: string) {
     const dateKey = `${monthKey}-${String(day).padStart(2, "0")}`;
     const due = chores.filter((c) => isDueOn(c, dateKey));
     const doneSet = doneByDay.get(dateKey) ?? new Set<string>();
-    const doneCount = due.filter((c) => doneSet.has(c.id)).length;
-    days.push({ dateKey, dayOfMonth: day, dueCount: due.length, doneCount });
+    const items: MonthChoreItem[] = due
+      .map((c) => ({ id: c.id, title: c.title, done: doneSet.has(c.id) }))
+      .sort((a, b) => Number(a.done) - Number(b.done) || a.title.localeCompare(b.title));
+    const doneCount = items.filter((i) => i.done).length;
+    days.push({ dateKey, dayOfMonth: day, dueCount: due.length, doneCount, items });
   }
 
   return days;

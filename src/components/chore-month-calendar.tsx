@@ -13,6 +13,7 @@ import {
 import type { MonthChoreDay } from "@/lib/actions/chores";
 
 const WEEKDAY_LABELS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+const MAX_VISIBLE_PER_DAY = 3;
 
 export function ChoreMonthCalendar({
   monthKey,
@@ -78,13 +79,14 @@ export function ChoreMonthCalendar({
                   const info = byKey.get(key);
                   const inMonth = isSameMonth(date, monthStart);
                   const today = isTodayFn(date);
-                  const allDone = info && info.dueCount > 0 && info.doneCount === info.dueCount;
-                  const hasPending = info && info.dueCount > 0 && info.doneCount < info.dueCount;
+                  const items = info?.items ?? [];
+                  const visible = items.slice(0, MAX_VISIBLE_PER_DAY);
+                  const extra = items.length - visible.length;
 
                   return (
                     <div
                       key={key}
-                      className={`min-h-[64px] p-1.5 ${inMonth ? "bg-white" : "bg-neutral-50"}`}
+                      className={`min-h-[92px] p-1.5 ${inMonth ? "bg-white" : "bg-neutral-50"}`}
                     >
                       <span
                         className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs ${
@@ -97,19 +99,28 @@ export function ChoreMonthCalendar({
                       >
                         {date.getDate()}
                       </span>
-                      {info && info.dueCount > 0 && (
-                        <p
-                          className={`mt-1 text-[11px] font-medium ${
-                            allDone
-                              ? "text-emerald-600"
-                              : hasPending
-                                ? "text-amber-600"
-                                : "text-neutral-400"
-                          }`}
-                        >
-                          {info.doneCount}/{info.dueCount}
-                        </p>
-                      )}
+                      <div className="mt-1 space-y-0.5">
+                        {visible.map((item) => (
+                          <div
+                            key={item.id}
+                            className={`flex items-center gap-1 truncate rounded px-1 py-0.5 text-[11px] ${
+                              item.done ? "text-neutral-400" : "text-neutral-700"
+                            }`}
+                          >
+                            <span
+                              className={`inline-block h-1.5 w-1.5 shrink-0 rounded-full ${
+                                item.done ? "bg-neutral-300" : "bg-blue-500"
+                              }`}
+                            />
+                            <span className={`truncate ${item.done ? "line-through" : ""}`}>
+                              {item.title}
+                            </span>
+                          </div>
+                        ))}
+                        {extra > 0 && (
+                          <p className="px-1 text-[11px] text-neutral-400">+{extra} khác</p>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
