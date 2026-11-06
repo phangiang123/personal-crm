@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/chores", label: "Việc nhà" },
   { href: "/calendar", label: "Lịch" },
   { href: "/journal", label: "Tổng kết ngày" },
+  { href: "/warehouse-leads", label: "Tìm kho hàng" },
   { href: "/tags", label: "Tags" },
   { href: "/settings", label: "Settings" },
 ];

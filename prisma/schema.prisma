@@ -21,6 +21,18 @@ model PushSubscription {
   createdAt DateTime @default(now())
 }
 
+model WarehouseLead {
+  id        String   @id @default(cuid())
+  title     String
+  postedAt  String?
+  address   String?
+  area      String?
+  price     String?
+  link      String   @unique
+  keyword   String?
+  createdAt DateTime @default(now())
+}
+
 enum Closeness {
   VERY_CLOSE
   CLOSE
